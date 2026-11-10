@@ -309,6 +309,6 @@ def load_keyword_trends(
         "FROM selected s JOIN papers p ON p."
         f'{_identifier(schema.paper_id)} = s.paper_id {schema.keyword_join} '
         f"WHERE {schema.keyword_expression} IN ({','.join('?' for _ in chosen)}) {condition} "
-        "GROUP BY year, keyword ORDER BY year, keyword"
+        "GROUP BY s.year, keyword ORDER BY s.year, keyword"
     )
     return pd.read_sql_query(query, connection, params=params + chosen + method_params)

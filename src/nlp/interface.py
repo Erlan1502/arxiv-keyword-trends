@@ -55,12 +55,13 @@ class BaseKeywordExtractor(Protocol):
 
 def extract_keywords(
     text: str,
-    method: Literal["frequency_baseline", "tfidf", "yake", "keybert"] = "tfidf",
+    method: Literal["frequency_baseline", "tfidf", "yake", "rake", "keybert"] = "tfidf",
     top_k: int = 10,
     preprocess_mode: Literal["stemming", "lemmatization", "none"] = "lemmatization",
 ) -> ExtractionResult:
     """Фасадная функция для вызова из Streamlit (src/app/main.py)."""
-    raise NotImplementedError("Реализуется Ерланом в src/nlp/extractors.py")
+    from src.nlp.extractors import extract_keywords as _impl
+    return _impl(text=text, method=method, top_k=top_k, preprocess_mode=preprocess_mode)
 
 
 def process_paper_chunk(
@@ -69,5 +70,7 @@ def process_paper_chunk(
     top_k: int = 10,
 ) -> list[ExtractionResult]:
     """Фасадная функция для вызова из ETL-пайплайна (src/etl/parser.py)."""
-    raise NotImplementedError("Реализуется Ерланом в src/nlp/extractors.py")
+    from src.nlp.extractors import process_paper_chunk as _impl
+    return _impl(papers=papers, method=method, top_k=top_k)
+
     
