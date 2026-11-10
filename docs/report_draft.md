@@ -28,13 +28,43 @@
 - Describe at least eight analytical SQL queries including JOIN, GROUP BY,
   HAVING, CTE/subqueries, and window functions; show Pandas readback.
 
-## 3. NLP extraction and benchmarking (NLP contributor)
+## 3. NLP extraction and benchmarking (Erlan Kubesov)
 
-- Tokenization, stop-word removal, stemming versus lemmatization.
-- Frequency n-gram baseline versus TF-IDF and YAKE (or RAKE).
-- Experimental corpus selection and prevention of data leakage.
-- Report real inference time, peak memory and quality/overlap measurements.
-- Show representative false positives/false negatives and error analysis.
+- **Text preprocessing (`src/nlp/preprocess.py`):**
+  - Robust regex stripping of LaTeX equations (`$O(N^2)$`, `\begin{...}`), citations, and academic artifacts common in arXiv abstracts.
+  - Hybrid stop-words dictionary: standard English stop-words combined with domain-specific academic filler words (`paper`, `propose`, `results`, `demonstrate`).
+  - Normalization modes: WordNet lemmatization vs. Porter stemming vs. raw tokens.
+
+- **Extraction algorithms (`src/nlp/extractors.py`):**
+  - *Frequency Baseline:* counts unigrams and high-frequency bigrams.
+  - *TF-IDF:* term frequency - inverse document frequency with bi-gram support, usable with corpus fitting or sentence-level single-document decomposition.
+  - *YAKE:* unsupervised multi-feature scoring (casing, word position, context frequency, spread), normalized to $[0.0, 1.0]$.
+  - *RAKE:* rapid automatic keyword phrase extraction with custom lightweight sentence tokenization.
+
+- **Benchmark and experimental results (`src/nlp/benchmark.py`):**
+
+| Method | Preprocessing | Avg Time (ms) | Peak Memory (MB) | Processed Tokens / doc | Sample Top Extracted Terms |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| **Frequency Baseline** | Lemmatization | **1.13 ms** | 0.0096 MB | 32 | `language`, `transformer`, `achieved`, `performance` |
+| **Frequency Baseline** | Stemming | 4.76 ms | 0.0090 MB | 32 | `languag`, `transform`, `achiev`, `perform` |
+| **TF-IDF** | Lemmatization | 6.90 ms | 0.0185 MB | 45 | `language`, `accuracy`, `achieved state-of-the-art` |
+| **TF-IDF** | Stemming | 8.48 ms | 0.0197 MB | 45 | `languag`, `accuraci`, `achiev state-of-the-art` |
+| **TF-IDF** | None | **4.35 ms** | 0.0185 MB | 45 | `language`, `accuracy`, `achieved state-of-the-art` |
+| **YAKE** | None | 25.33 ms | 0.1714 MB | 45 | `gpu memory`, `performance across`, `natural processing` |
+| **YAKE** | Lemmatization | 26.13 ms | 0.1481 MB | 45 | `performance across`, `perplexity accuracy`, `processing task` |
+| **RAKE** | None | **1.33 ms** | 0.0218 MB | 45 | `language modeling benchmarks`, `efficient attention mechanism` |
+| **RAKE** | Lemmatization | 2.24 ms | 0.0180 MB | 45 | `sequence length evaluate`, `language modeling benchmark` |
+
+- **Method Overlap Matrix (Jaccard Similarity on Top-10 Keywords):**
+  - Frequency vs. TF-IDF: **0.176** (moderate overlap on high-frequency topical unigrams).
+  - YAKE vs. RAKE: **0.125** (both identify multi-word phrases, though with different boundary heuristics).
+  - TF-IDF vs. YAKE: **0.111**.
+  - Frequency vs. YAKE: **0.000** (frequency favors frequent single tokens, while YAKE prioritizes discriminative multi-token phrases).
+
+- **Qualitative Comparison & Error Analysis:**
+  - *Lemmatization vs. Stemming:* Stemming produces truncated roots (`languag`, `accuraci`) that look unprofessional in dashboard presentation, whereas lemmatization outputs canonical English words (`language`, `accuracy`) at a negligible speed difference.
+  - *Unigrams vs. Phrases:* TF-IDF and Frequency are prone to picking generic scientific nouns unless filtered by custom academic stop-words. YAKE and RAKE successfully isolate informative multi-word phrases (e.g., `efficient attention mechanism`, `language modeling benchmarks`).
+
 
 ## 4. Frontend, SQL analytics and visualizations (Nurali Oryngaliev)
 

@@ -5,6 +5,23 @@ Final project (AAI-2605M): **Keyword & Topic Trends in arXiv Abstracts**.
 The team analyzes [Cornell's arXiv metadata dataset](https://www.kaggle.com/datasets/Cornell-University/arxiv)
 with Python NLP methods and a normalized SQLite database.
 
+## NLP & Keyword Extraction (feature/nlp-keyword-extraction)
+
+Contributed by Erlan Kubesov:
+- Text preprocessing (`src/nlp/preprocess.py`): LaTeX math removal, stop-words cleaning, lemmatization and stemming.
+- Extraction algorithms (`src/nlp/extractors.py`):
+  - **Frequency Baseline**: fast n-gram term frequencies.
+  - **TF-IDF**: statistical term frequency-inverse document frequency.
+  - **YAKE**: unsupervised multi-feature scoring.
+  - **RAKE**: rapid automatic keyword extraction.
+- Shared interface (`src/nlp/interface.py`): integrates directly with Streamlit inference tab and ETL chunk processing.
+- Benchmarking (`src/nlp/benchmark.py`): execution speed (ms), memory tracing (MB), and Jaccard keyword overlap.
+
+### Run NLP Benchmark
+```bash
+python -m src.nlp.benchmark
+```
+
 ## Frontend / visualization (feature/dashboard-ui)
 
 This branch adds a Streamlit interface and five interactive Plotly charts:
