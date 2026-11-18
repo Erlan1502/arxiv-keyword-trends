@@ -231,3 +231,6 @@ data/processed/*
 *.db
 *.sqlite
 *.sqlite3
+# SQLite runtime files
+data/*.db-wal
+data/*.db-shm
